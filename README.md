@@ -5,7 +5,10 @@ RISCO es un Lenguaje de Dominio Específico (DSL) para realizar operaciones mate
 ## Características
 
 - Variables inmutables (`val`) y mutables (`var`)
-- Funciones built-in (print, length, sum, sqrt)
+- Null y valores nulos
+- Listas y operaciones
+- Booleanos y operaciones lógicas
+- Strings y concatenación
 
 
 ## Requisitos previos 

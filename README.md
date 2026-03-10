@@ -11,6 +11,10 @@ RISCO es un Lenguaje de Dominio Específico (DSL) para realizar operaciones mate
 ## Requisitos previos 
 Con instrucciones para instalar en
 #### Linux (Debian)
+- antlr4 <br>
+`
+sudo apt install antlr4`
+
 - Python 3.8 o superior<br>
 `
 sudo apt update`<br>

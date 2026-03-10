@@ -1,0 +1,15 @@
+// For sobre una lista
+val numeros = [1, 2, 3, 4, 5]
+for n in numeros:
+    n * 2
+end
+
+// For sobre un string (caracter por caracter)
+val palabra = "hola"
+for letra in palabra:
+    letra
+end
+
+// Uso de 'in' como expresión booleana
+val frutas = ["manzana", "pera", "uva"]
+"pera" in frutas    // imprime: > true  

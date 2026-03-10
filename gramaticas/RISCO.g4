@@ -13,6 +13,7 @@ sentencia
     : declaracion_variable
     | asignacion
     | expresion_stmt
+    | for_stmt // ← NUEVO: declaración de bucle for
     ;
 
 declaracion_variable
@@ -28,9 +29,19 @@ expresion_stmt
     : expresion NL
     ;
 
+for_stmt
+    : 'for' IDENTIFICADOR 'in' expresion ':' NL
+      (NL* sentencia)*
+      END  NL
+    ;
+
 // Expresiones con precedencia (de menor a mayor)
 expresion
-    : termino (('+' | '-') termino)*
+    : comparacion (('+' | '-') comparacion)*
+    ;
+
+comparacion
+    : termino ('in' termino)?
     ;
 
 termino
@@ -63,10 +74,17 @@ lista
     : '[' (expresion (',' expresion)*)? ']'
     ;
 
+// Palabras reservadas — DEBEN ir antes de IDENTIFICADOR
+FOR          : 'for';
+IN           : 'in';
+END          : 'end';
+VAL          : 'val';
+VAR          : 'var';
+
 // Tokens léxicos
 NUMERO : DIGITO+;
 DECIMAL : DIGITO+ '.' DIGITO+;
-STRING : '"' ( ~["\r\n] | '\\"' )* '"';
+STRING : '"' ( ~["\r\n] | '\\"' )* '"'; 
 BOOLEANO : 'true' | 'false';
 NULL : 'null';
 IDENTIFICADOR : LETRA (LETRA | DIGITO | '_')*;

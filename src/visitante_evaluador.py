@@ -32,7 +32,7 @@ class VisitanteEvaluador(RISCOVisitor):
         nombre = ctx.IDENTIFICADOR().getText()
         valor = self.visit(ctx.expresion())
         
-        if ctx.getChild(0).getText() == 'val':
+        if ctx.VAL() is not None:  # val
             if nombre in self.memoria:
                 raise Exception(f"Error: '{nombre}' ya está definida como val")
             self.memoria[nombre] = valor
@@ -53,22 +53,58 @@ class VisitanteEvaluador(RISCOVisitor):
         resultado = self.visit(ctx.expresion())
         print(f"> {resultado}")
         return resultado
+    def visitFor_stmt(self, ctx: RISCOParser.For_stmtContext):
+        nombre_var = ctx.IDENTIFICADOR().getText()
+        iterable = self.visit(ctx.expresion())
+
+        # Verificar que sea iterable (lista o string)
+        if not isinstance(iterable, (list, str)):
+            raise Exception(f"Error: '{iterable}' no es iterable en for")
+
+        for elemento in iterable:
+            # La variable del for existe solo dentro del bloque
+            self.memoria[nombre_var] = elemento
+            for sentencia in ctx.sentencia():
+                try:
+                    self.visit(sentencia)
+                except Exception as e:
+                    print(f"Error en for: {e}")
+    
+        # Limpiar la variable de iteración al salir
+        if nombre_var in self.memoria:
+            del self.memoria[nombre_var]
+    
+        return None
     
     # Expresiones
     def visitExpresion(self, ctx: RISCOParser.ExpresionContext):     
         if ctx.getChildCount() == 1:
-            return self.visit(ctx.termino(0))
+            return self.visit(ctx.comparacion(0))
         
-        resultado = self.visit(ctx.termino(0))
-        for i in range(1, len(ctx.termino())):
+        resultado = self.visit(ctx.comparacion(0))
+        for i in range(1, len(ctx.comparacion())):
             operador = ctx.getChild(2*i - 1).getText()
-            valor = self.visit(ctx.termino(i))
+            valor = self.visit(ctx.comparacion(i))
             
             if operador == '+':
                 resultado += valor
             elif operador == '-':
                 resultado -= valor
         return resultado
+    
+    def visitComparacion(self, ctx: RISCOParser.ComparacionContext):
+        izquierda = self.visit(ctx.termino(0))
+    
+        if ctx.getChildCount() == 1:
+            return izquierda
+    
+        # Es una expresión "x in colección"
+        derecha = self.visit(ctx.termino(1))
+    
+        if not isinstance(derecha, (list, str)):
+            raise Exception(f"Error: 'in' requiere una lista o string a la derecha")
+    
+        return izquierda in derecha
     
     def visitTermino(self, ctx: RISCOParser.TerminoContext):     
         if ctx.getChildCount() == 1:

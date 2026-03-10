@@ -16,11 +16,15 @@ Con instrucciones para instalar en
 - Python 3.8 o superior<br>
 `
 sudo apt install -y python3-full python3-pip`<br>
-`sudo apt install python3-pip python3-venv`
+`sudo apt install python3-pip python3-venv`<br>
+`sudo apt install pipx`<br>
 
 - antlr4 <br>
 `pip3 install --user antlr4-tools`<br>
-` echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`<br>
+Si no funciona<br>
+`pipx install antlr4-tools`<br>
+--------------------------------------
+`echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`<br>
 `source ~/.zshrc`
 
 

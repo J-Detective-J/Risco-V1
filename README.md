@@ -1,15 +1,12 @@
-# Calculadora-RISCO
+# RISCO
 
-RC_Calculadora es un Lenguaje de Dominio Específico (DSL) para realizar operaciones matemáticas, implementado con ANTLR4 y Python. Sigue un estilo funcional con variables inmutables (val) y mutables (var), y respeta la precedencia de operadores.
+RISCO es un Lenguaje de Dominio Específico (DSL) para realizar operaciones matemáticas, implementado con ANTLR4 y Python. Sigue un estilo funcional con variables inmutables (val) y mutables (var), y respeta la precedencia de operadores.
 
 ## Características
 
 - Variables inmutables (`val`) y mutables (`var`)
-- Operaciones aritméticas básicas (+, -, *, /, %, ^)
-- Comparaciones (==, !=, >, <, >=, <=)
-- Operadores lógicos (&&, ||, !)
-- Funciones built-in (print, length, sum, sqrt, map, filter, reduce)
-- Pipelines con operador `|>`
+- Funciones built-in (print, length, sum, sqrt)
+
 
 ## Requisitos previos 
 Con instrucciones para instalar en
@@ -26,7 +23,7 @@ sudo apt install default-jre
 ## Instalacion
 
 ### 1. Ubicarse en la carpeta
-`Calculadora-RISCO`
+`Risco-V1`
 
 ### 2. Crear y activar entorno virtual
 `python3 -m venv venv`<br>
@@ -40,10 +37,10 @@ sudo apt install default-jre
 `./generar.sh`
 
 
- ## ¿Cómo usar RC_Calculadora?
+ ## ¿Cómo usar RISCO?
  ### Modo interactivo:
-`python src/rc_calculadora.py`
+`python src/risco.py`
  ### Ejecutar un archivo:
  - Crea un archivo con extensión .rc<br>
-`python src/rc_calculadora.py Carpeta/nombre_del_archivo.rc`
+`python src/risco.py Carpeta/nombre_del_archivo.rc`
  ###

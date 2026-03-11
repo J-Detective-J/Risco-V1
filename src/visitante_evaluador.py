@@ -52,6 +52,16 @@ class VisitanteEvaluador(RISCOVisitor):
     def visitExpresion_stmt(self, ctx: RISCOParser.Expresion_stmtContext):
         resultado = self.visit(ctx.expresion())
         print(f"> {resultado}")
+
+    def visitPrint_stmt(self, ctx):
+        valor = self.visit(ctx.expresion())
+
+        if not isinstance(valor, str):
+            raise Exception("print() solo permite strings")
+
+        print(valor)
+        return None
+
         return resultado
     def visitFor_stmt(self, ctx: RISCOParser.For_stmtContext):
         nombre_var = ctx.IDENTIFICADOR().getText()
@@ -185,4 +195,12 @@ class VisitanteEvaluador(RISCOVisitor):
         elementos = []
         for expr in ctx.expresion():
             elementos.append(self.visit(expr))
-        return elementos
+        return elementos	
+    def visitPrint_stmt(self, ctx):
+        valor = self.visit(ctx.expresion())
+
+        if not isinstance(valor, str):
+            raise Exception("print() solo permite strings")
+
+        print(valor)
+        return None

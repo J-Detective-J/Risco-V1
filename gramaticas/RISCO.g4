@@ -8,13 +8,17 @@ grammar RISCO;  // ← CAMBIADO de "Calculadora" a "RISCO"
 // Programa principal - acepta saltos de línea entre sentencias
 programa: (NL* sentencia NL*)* EOF;
 
-// Sentencias
 sentencia
     : declaracion_variable
     | asignacion
     | expresion_stmt
-    | for_stmt // ← NUEVO: declaración de bucle for
+    | for_stmt
+    | print_stmt
     ;
+print_stmt
+    : PRINT '(' expresion ')' NL
+    ;
+
 
 declaracion_variable
     : 'val' IDENTIFICADOR '=' expresion NL
@@ -80,6 +84,7 @@ IN           : 'in';
 END          : 'end';
 VAL          : 'val';
 VAR          : 'var';
+PRINT        : 'print';
 
 // Tokens léxicos
 NUMERO : DIGITO+;

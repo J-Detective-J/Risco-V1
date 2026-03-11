@@ -71,7 +71,7 @@ chmod +x generar.sh
 ```bash
 python src/risco.py
 ```
-> ⚠️ El modo interactivo solo soporta expresiones de una línea. Para bloques como `for`, usar archivos `.rc`.
+>  El modo interactivo solo soporta expresiones de una línea. Para bloques como `for`, usar archivos `.rc`.
 
 ### Ejecutar un archivo
 Crea un archivo con extensión `.rc` y ejecútalo:

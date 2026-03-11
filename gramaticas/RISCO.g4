@@ -1,5 +1,12 @@
 grammar RISCO;  // ← CAMBIADO de "Calculadora" a "RISCO"
 
+
+// Sección de miembros del parser
+// Permite compartir estado dentro del parser generado.
+// En RISCO la memoria real se maneja en el VisitanteEvaluador,
+// este bloque queda como punto de extensión.
+
+
 @parser::members {
     # Memoria para variables
     memoria = {}

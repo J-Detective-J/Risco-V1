@@ -19,6 +19,11 @@ class RISCOVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by RISCOParser#print_stmt.
+    def visitPrint_stmt(self, ctx:RISCOParser.Print_stmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by RISCOParser#declaracion_variable.
     def visitDeclaracion_variable(self, ctx:RISCOParser.Declaracion_variableContext):
         return self.visitChildren(ctx)

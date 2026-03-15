@@ -48,8 +48,8 @@ class RISCO:
             el AST y mantiene la memoria del programa.
     """
 
-    def __init__(self):
-        self.visitante = VisitanteEvaluador()
+    def __init__(self,modo_interactivo=False):
+        self.visitante = VisitanteEvaluador(modo_interactivo=modo_interactivo)
 
     def ejecutar_archivo(self, ruta_archivo: str) -> None:
         """
@@ -159,10 +159,10 @@ def main():
         python src/risco.py ejemplos/programa.rc   # ejecutar archivo
     """
     if len(sys.argv) > 1:
-        lenguaje = RISCO()
+        lenguaje = RISCO(modo_interactivo=False)
         lenguaje.ejecutar_archivo(sys.argv[1])
     else:
-        lenguaje = RISCO()
+        lenguaje = RISCO(modo_interactivo=True)
         lenguaje.modo_interactivo()
 
 

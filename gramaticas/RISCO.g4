@@ -1,4 +1,4 @@
-grammar RISCO;  // ← CAMBIADO de "Calculadora" a "RISCO"
+grammar RISCO; 
 
 
 // Sección de miembros del parser
@@ -48,6 +48,26 @@ for_stmt
 
 // Expresiones con precedencia (de menor a mayor)
 expresion
+    : or_logico
+    ;
+
+or_logico
+    : and_logico ('||' and_logico)*
+    ;
+
+and_logico
+    : igualdad ('&&' igualdad)*
+    ;
+
+igualdad
+    : relacional (('==' | '!=') relacional)*
+    ;
+
+relacional
+    : suma (('>' | '<' | '>=' | '<=') suma)*
+    ;
+
+suma
     : comparacion (('+' | '-') comparacion)*
     ;
 
@@ -56,16 +76,12 @@ comparacion
     ;
 
 termino
-    : factor (('*' | '/' | '%') factor)*
-    ;
-
-factor
-    : potencia ('^' potencia)*
+    : potencia (('*' | '/' | '%') potencia)*
     ;
 
 potencia
     : primario
-    | primario '^' potencia  // asociativo derecha
+    | primario '^' potencia
     ;
 
 primario
@@ -92,6 +108,14 @@ END          : 'end';
 VAL          : 'val';
 VAR          : 'var';
 PRINT        : 'print';
+
+// Operadores de dos caracteres
+AND  : '&&';
+OR   : '||';
+EQ   : '==';
+NEQ  : '!=';
+GTE  : '>=';
+LTE  : '<=';
 
 // Tokens léxicos
 NUMERO : DIGITO+;

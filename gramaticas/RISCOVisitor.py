@@ -49,6 +49,31 @@ class RISCOVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by RISCOParser#or_logico.
+    def visitOr_logico(self, ctx:RISCOParser.Or_logicoContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by RISCOParser#and_logico.
+    def visitAnd_logico(self, ctx:RISCOParser.And_logicoContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by RISCOParser#igualdad.
+    def visitIgualdad(self, ctx:RISCOParser.IgualdadContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by RISCOParser#relacional.
+    def visitRelacional(self, ctx:RISCOParser.RelacionalContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by RISCOParser#suma.
+    def visitSuma(self, ctx:RISCOParser.SumaContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by RISCOParser#comparacion.
     def visitComparacion(self, ctx:RISCOParser.ComparacionContext):
         return self.visitChildren(ctx)
@@ -56,11 +81,6 @@ class RISCOVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by RISCOParser#termino.
     def visitTermino(self, ctx:RISCOParser.TerminoContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by RISCOParser#factor.
-    def visitFactor(self, ctx:RISCOParser.FactorContext):
         return self.visitChildren(ctx)
 
 

@@ -35,9 +35,10 @@ class VisitanteEvaluador(RISCOVisitor):
         ultimo_resultado: Último valor evaluado, útil para el modo REPL.
     """
     
-    def __init__(self):
+    def __init__(self,modo_interactivo=False):
         self.memoria = {}  # diccionario para variables
         self.ultimo_resultado = None
+        self.modo_interactivo = modo_interactivo
         
     # Programa
     def visitPrograma(self, ctx: RISCOParser.ProgramaContext):
@@ -140,18 +141,15 @@ class VisitanteEvaluador(RISCOVisitor):
             El valor evaluado de la expresión.
         """
         resultado = self.visit(ctx.expresion())
-        print(f"> {resultado}")
+        if self.modo_interactivo:
+            print(f"> {resultado}")
+        return resultado
 
     def visitPrint_stmt(self, ctx):
         valor = self.visit(ctx.expresion())
-
-        if not isinstance(valor, str):
-            raise Exception("print() solo permite strings")
-
-        print(valor)
+        print(valor) # Imprime cualquier tipo de dato, sin conversiones implicitas
         return None
 
-        return resultado
     
     def visitFor_stmt(self, ctx: RISCOParser.For_stmtContext):
         """
@@ -204,6 +202,65 @@ class VisitanteEvaluador(RISCOVisitor):
     
     # Expresiones
     def visitExpresion(self, ctx: RISCOParser.ExpresionContext):
+        return self.visit(ctx.or_logico())
+    
+    def visitOr_logico(self, ctx: RISCOParser.Or_logicoContext):
+        resultado = self.visit(ctx.and_logico(0))
+        for i in range(1, len(ctx.and_logico())):
+            valor = self.visit(ctx.and_logico(i))
+            if not isinstance(resultado, bool) or not isinstance(valor, bool):
+                raise Exception(
+                    f"Error de tipos: '||' solo opera sobre Bool, "
+                    f"no sobre '{type(resultado).__name__}' y '{type(valor).__name__}'"
+                )
+            resultado = resultado or valor
+        return resultado
+
+    def visitAnd_logico(self, ctx: RISCOParser.And_logicoContext):
+        resultado = self.visit(ctx.igualdad(0))
+        for i in range(1, len(ctx.igualdad())):
+            valor = self.visit(ctx.igualdad(i))
+            if not isinstance(resultado, bool) or not isinstance(valor, bool):
+                raise Exception(
+                    f"Error de tipos: '&&' solo opera sobre Bool, "
+                    f"no sobre '{type(resultado).__name__}' y '{type(valor).__name__}'"
+                )
+            resultado = resultado and valor
+        return resultado
+    
+    def visitIgualdad(self, ctx: RISCOParser.IgualdadContext):
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.relacional(0))
+        izq = self.visit(ctx.relacional(0))
+        op  = ctx.getChild(1).getText()
+        der = self.visit(ctx.relacional(1))
+        if type(izq) != type(der):
+            raise Exception(
+                f"Error de tipos: '{op}' no puede comparar "
+                f"'{type(izq).__name__}' y '{type(der).__name__}'"
+            )
+        if op == '==': return izq == der
+        if op == '!=': return izq != der
+
+    def visitRelacional(self, ctx: RISCOParser.RelacionalContext):
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.suma(0))
+        izq = self.visit(ctx.suma(0))
+        op  = ctx.getChild(1).getText()
+        der = self.visit(ctx.suma(1))
+        
+        if isinstance(izq, bool) or isinstance(der, bool) or \
+        not isinstance(izq, (int, float)) or not isinstance(der, (int, float)):
+            raise Exception(
+                f"Error de tipos: '{op}' solo opera sobre números, "
+                f"no sobre '{type(izq).__name__}' y '{type(der).__name__}'"
+            )
+        if op == '>':  return izq > der
+        if op == '<':  return izq < der
+        if op == '>=': return izq >= der
+        if op == '<=': return izq <= der
+
+    def visitSuma(self, ctx: RISCOParser.ExpresionContext):
         """
         Evalúa sumas y restas (menor precedencia).
 
@@ -225,9 +282,20 @@ class VisitanteEvaluador(RISCOVisitor):
             operador = ctx.getChild(2*i - 1).getText()
             valor = self.visit(ctx.comparacion(i))
             
+            # Operaciones suma y resta con validaciones de tipo
             if operador == '+':
+                if type(resultado) != type(valor):
+                    raise Exception(
+                        f"Error de tipos: '+' no puede operar "
+                        f"'{type(resultado).__name__}' y '{type(valor).__name__}'"
+                    )
                 resultado += valor
             elif operador == '-':
+                if isinstance(resultado, bool) or isinstance(valor, bool) or \
+                    not isinstance(resultado, (int, float)) or not isinstance(valor, (int, float)):
+                    raise Exception(
+                        f"Error de tipos: '-' solo opera sobre números"
+                    )
                 resultado -= valor
         return resultado
     
@@ -280,36 +348,6 @@ class VisitanteEvaluador(RISCOVisitor):
             Exception: Si se intenta dividir por cero.
         """    
         if ctx.getChildCount() == 1:
-            return self.visit(ctx.factor(0))
-        
-        resultado = self.visit(ctx.factor(0))
-        for i in range(1, len(ctx.factor())):
-            operador = ctx.getChild(2*i - 1).getText()
-            valor = self.visit(ctx.factor(i))
-            
-            if operador == '*':
-                resultado *= valor
-            elif operador == '/':
-                if valor == 0:
-                    raise Exception("Error: División por cero")
-                resultado /= valor
-            elif operador == '%':
-                resultado %= valor
-        return resultado
-    
-    def visitFactor(self, ctx: RISCOParser.FactorContext):
-        """
-        Evalúa potencias con asociatividad izquierda (nivel intermedio).
-
-        Este nivel delega en 'potencia' para la asociatividad derecha real.
-
-        Args:
-            ctx: Contexto del nodo 'factor'.
-
-        Returns:
-            Resultado numérico.
-        """         
-        if ctx.getChildCount() == 1:
             return self.visit(ctx.potencia(0))
         
         resultado = self.visit(ctx.potencia(0))
@@ -317,26 +355,43 @@ class VisitanteEvaluador(RISCOVisitor):
             operador = ctx.getChild(2*i - 1).getText()
             valor = self.visit(ctx.potencia(i))
             
-            if operador == '^':
-                resultado = resultado ** valor
+            # Operaciones multiplicación, división y módulo con validaciones de tipo
+            if operador == '*':
+                if isinstance(resultado, bool) or isinstance(valor, bool) or \
+                    not isinstance(resultado, (int, float)) or not isinstance(valor, (int, float)):
+                    raise Exception("Error de tipos: '*' solo opera sobre números")
+                resultado *= valor
+            elif operador == '/':
+                if isinstance(resultado, bool) or isinstance(valor, bool) or \
+                    not isinstance(resultado, (int, float)) or not isinstance(valor, (int, float)):
+                    raise Exception("Error de tipos: '/' solo opera sobre números")
+                if valor == 0:
+                    raise Exception("Error: División por cero")
+                resultado /= valor
+            elif operador == '%':
+                if isinstance(resultado, bool) or isinstance(valor, bool) or \
+                    not isinstance(resultado, (int, float)) or not isinstance(valor, (int, float)):
+                    raise Exception("Error de tipos: '%' solo opera sobre números")
+                resultado %= valor
         return resultado
     
     def visitPotencia(self, ctx: RISCOParser.PotenciaContext):
         """
         Evalúa potencias con asociatividad derecha.
-
-        La forma recursiva "primario ^ potencia" garantiza que
-        2 ^ 3 ^ 2 se evalúe como 2 ^ (3 ^ 2) = 512.
-
-        Args:
-            ctx: Contexto del nodo 'potencia'.
-
-        Returns:
-            Resultado numérico.
-        """     
+        2 ^ 3 ^ 2 se evalúa como 2 ^ (3 ^ 2) = 512.
+        Solo opera sobre números, no sobre Bool ni otros tipos.
+        """
         if ctx.getChildCount() == 1:
             return self.visit(ctx.primario())
-        return self.visit(ctx.primario(0)) ** self.visit(ctx.potencia())
+        
+        base = self.visit(ctx.primario()) 
+        exp  = self.visit(ctx.potencia())
+        
+        if isinstance(base, bool) or isinstance(exp, bool) or \
+        not isinstance(base, (int, float)) or not isinstance(exp, (int, float)):
+            raise Exception("Error de tipos: '^' solo opera sobre números")
+        
+        return base ** exp
     
     def visitPrimario(self, ctx: RISCOParser.PrimarioContext):
         """
@@ -397,7 +452,12 @@ class VisitanteEvaluador(RISCOVisitor):
         
         if ctx.getChild(0).getText() == '!':
             valor = self.visit(ctx.primario())
-            return not bool(valor)
+            if not isinstance(valor, bool):
+                raise Exception(
+                    f"Error de tipos: '!' solo opera sobre Bool, "
+                    f"no sobre '{type(valor).__name__}'"
+                )
+            return not valor
         
         return None
     
@@ -421,11 +481,4 @@ class VisitanteEvaluador(RISCOVisitor):
         for expr in ctx.expresion():
             elementos.append(self.visit(expr))
         return elementos	
-    def visitPrint_stmt(self, ctx):
-        valor = self.visit(ctx.expresion())
-
-        if not isinstance(valor, str):
-            raise Exception("print() solo permite strings")
-
-        print(valor)
-        return None
+    

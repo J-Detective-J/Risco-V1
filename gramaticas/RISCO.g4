@@ -21,7 +21,10 @@ sentencia
     | expresion_stmt
     | for_stmt
     | print_stmt
+    | if_stmt
+    | while_stmt
     ;
+
 print_stmt
     : PRINT '(' expresion ')' NL
     ;
@@ -46,6 +49,20 @@ for_stmt
       END  NL
     ;
 
+if_stmt
+    : IF expresion ':' NL 
+      (NL* sentencia)*
+      (ELIF expresion ':' NL (NL* sentencia)*)*
+      (ELSE ':' NL (NL* sentencia)*)?
+      END NL
+    ;
+
+while_stmt
+    : WHILE expresion ':' NL
+      (NL* sentencia)*
+      END NL
+    ;
+    
 // Expresiones con precedencia (de menor a mayor)
 expresion
     : or_logico
@@ -108,6 +125,10 @@ END          : 'end';
 VAL          : 'val';
 VAR          : 'var';
 PRINT        : 'print';
+IF           : 'if';
+ELIF         : 'elif';
+ELSE         : 'else';
+WHILE        : 'while';
 
 // Operadores de dos caracteres
 AND  : '&&';

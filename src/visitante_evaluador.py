@@ -37,6 +37,7 @@ class VisitanteEvaluador(RISCOVisitor):
     
     def __init__(self,modo_interactivo=False):
         self.memoria = {}  # diccionario para variables
+        self.vals = set() # variables inmutables (val)
         self.ultimo_resultado = None
         self.modo_interactivo = modo_interactivo
         
@@ -88,11 +89,13 @@ class VisitanteEvaluador(RISCOVisitor):
         nombre = ctx.IDENTIFICADOR().getText()
         valor = self.visit(ctx.expresion())
         
-        if ctx.VAL() is not None:  # val
-            if nombre in self.memoria:
-                raise Exception(f"Error: '{nombre}' ya está definida como val")
+        if nombre in self.memoria:
+            raise Exception(f"Error: '{nombre}' ya está definida y no puede redeclararse")
+    
+        if ctx.VAL() is not None:
             self.memoria[nombre] = valor
-        else:  # var
+            self.vals.add(nombre)
+        else:
             self.memoria[nombre] = valor
         return None
     
@@ -102,24 +105,26 @@ class VisitanteEvaluador(RISCOVisitor):
 
         Solo permite modificar variables previamente declaradas con var.
         Intentar asignar a una variable no declarada lanza error.
+        Intentar asignar a una variable val lanza error de inmutabilidad.
 
         Args:
             ctx: Contexto del nodo 'asignacion'.
-                 Contiene el IDENTIFICADOR y la nueva expresión.
+                Contiene el IDENTIFICADOR y la nueva expresión.
 
         Returns:
             El nuevo valor asignado.
 
         Raises:
             Exception: Si la variable no existe en memoria.
+            Exception: Si la variable es inmutable (val).
         """
-        nombre = ctx.IDENTIFICADOR().getText()
-        valor = self.visit(ctx.expresion())  
         nombre = ctx.IDENTIFICADOR().getText()
         valor = self.visit(ctx.expresion())
         
         if nombre not in self.memoria:
             raise Exception(f"Error: Variable '{nombre}' no definida")
+        if nombre in self.vals:
+            raise Exception(f"Error: '{nombre}' es inmutable, no se puede reasignar")
         self.memoria[nombre] = valor
         return valor
     
@@ -200,11 +205,160 @@ class VisitanteEvaluador(RISCOVisitor):
     
         return None
     
+    def visitIf_stmt(self, ctx: RISCOParser.If_stmtContext):
+        """
+        Evalúa un condicional if/elif/else.
+
+        Evalúa la condición del if. Si es verdadera ejecuta su bloque
+        y termina. Si no, evalúa cada elif en orden. Si ninguno es
+        verdadero y hay un else, ejecuta su bloque.
+
+        Args:
+            ctx: Contexto del nodo 'if_stmt'.
+
+        Returns:
+            None.
+
+        Raises:
+            Exception: Si la condición no evalúa a Bool.
+        """
+        # Recoger todas las expresiones (if + cada elif)
+        expresiones = ctx.expresion()
+        # Recoger todos los bloques de sentencias
+        # ANTLR agrupa las sentencias en orden: bloque if, bloque elif1, bloque elif2, bloque else
+        bloques = self._obtener_bloques_if(ctx)
+
+        # Evaluar if
+        condicion = self.visit(expresiones[0])
+        if not isinstance(condicion, bool):
+            raise Exception(
+                f"Error de tipos: la condición del 'if' debe ser Bool, "
+                f"no '{type(condicion).__name__}'"
+            )
+        if condicion:
+            for sentencia in bloques[0]:
+                self.visit(sentencia)
+            return None
+
+        # Evaluar elif(s)
+        num_elif = len(expresiones) - 1
+        for i in range(num_elif):
+            condicion = self.visit(expresiones[i + 1])
+            if not isinstance(condicion, bool):
+                raise Exception(
+                    f"Error de tipos: la condición del 'elif' debe ser Bool, "
+                    f"no '{type(condicion).__name__}'"
+                )
+            if condicion:
+                for sentencia in bloques[i + 1]:
+                    self.visit(sentencia)
+                return None
+
+        # Evaluar else si existe
+        tiene_else = ctx.ELSE() is not None
+        if tiene_else:
+            for sentencia in bloques[-1]:
+                self.visit(sentencia)
+
+        return None
+
+    def _obtener_bloques_if(self, ctx: RISCOParser.If_stmtContext):
+        """
+        Separa las sentencias del if_stmt en bloques según los tokens
+        IF, ELIF, ELSE y END.
+
+        Returns:
+            Lista de listas de sentencias. El índice 0 es el bloque if,
+            los siguientes son los bloques elif, y el último es el else
+            si existe.
+        """
+        bloques = []
+        bloque_actual = []
+
+        for i in range(ctx.getChildCount()):
+            hijo = ctx.getChild(i)
+            texto = hijo.getText()
+
+            if texto in ('if', 'elif', 'else', 'end'):
+                if texto in ('elif', 'else', 'end') and bloque_actual is not None:
+                    bloques.append(bloque_actual)
+                    bloque_actual = []
+                if texto == 'end':
+                    bloque_actual = None
+            elif hasattr(hijo, 'getRuleIndex'):
+                # Es una sentencia (nodo del árbol, no token)
+                if bloque_actual is not None:
+                    bloque_actual.append(hijo)
+
+        return bloques
+
+    def visitWhile_stmt(self, ctx: RISCOParser.While_stmtContext):
+        """
+        Evalúa un bucle while.
+
+        Evalúa la condición antes de cada iteración. Si es verdadera
+        ejecuta el bloque. Si es falsa desde el inicio, no ejecuta nada.
+
+        Args:
+            ctx: Contexto del nodo 'while_stmt'.
+
+        Returns:
+            None.
+
+        Raises:
+            Exception: Si la condición no evalúa a Bool.
+        """
+        while True:
+            condicion = self.visit(ctx.expresion())
+            if not isinstance(condicion, bool):
+                raise Exception(
+                    f"Error de tipos: la condición del 'while' debe ser Bool, "
+                    f"no '{type(condicion).__name__}'"
+                )
+            if not condicion:
+                break
+            for sentencia in ctx.sentencia():
+                self.visit(sentencia)
+        return None
+    
     # Expresiones
     def visitExpresion(self, ctx: RISCOParser.ExpresionContext):
+        """
+        Punto de entrada de la jerarquía de expresiones.
+
+        Delega directamente a or_logico, que es el nivel de menor
+        precedencia en la jerarquía de operadores de RISCO.
+
+        Args:
+            ctx: Contexto del nodo 'expresion'.
+
+        Returns:
+            El valor evaluado por or_logico.
+        """
         return self.visit(ctx.or_logico())
     
     def visitOr_logico(self, ctx: RISCOParser.Or_logicoContext):
+        """
+        Evalúa el operador lógico OR (||).
+
+        Si solo hay un hijo, delega a and_logico.
+        Si hay múltiples, evalúa de izquierda a derecha.
+        Solo opera sobre valores Bool — lanza error si algún operando
+        no es booleano.
+
+        Ejemplo en RISCO:
+            true || false   → True
+            false || false  → False
+
+        Args:
+            ctx: Contexto del nodo 'or_logico'.
+
+        Returns:
+            bool resultado de aplicar OR entre los operandos.
+
+        Raises:
+            Exception: Si algún operando no es Bool.
+        """
         resultado = self.visit(ctx.and_logico(0))
         for i in range(1, len(ctx.and_logico())):
             valor = self.visit(ctx.and_logico(i))
@@ -217,6 +371,27 @@ class VisitanteEvaluador(RISCOVisitor):
         return resultado
 
     def visitAnd_logico(self, ctx: RISCOParser.And_logicoContext):
+        """
+        Evalúa el operador lógico AND (&&).
+
+        Si solo hay un hijo, delega a igualdad.
+        Si hay múltiples, evalúa de izquierda a derecha.
+        Solo opera sobre valores Bool — lanza error si algún operando
+        no es booleano.
+
+        Ejemplo en RISCO:
+            true && false   → False
+            true && true    → True
+
+        Args:
+            ctx: Contexto del nodo 'and_logico'.
+
+        Returns:
+            bool resultado de aplicar AND entre los operandos.
+
+        Raises:
+            Exception: Si algún operando no es Bool.
+        """
         resultado = self.visit(ctx.igualdad(0))
         for i in range(1, len(ctx.igualdad())):
             valor = self.visit(ctx.igualdad(i))
@@ -229,6 +404,28 @@ class VisitanteEvaluador(RISCOVisitor):
         return resultado
     
     def visitIgualdad(self, ctx: RISCOParser.IgualdadContext):
+        """
+        Evalúa los operadores de igualdad (== y !=).
+
+        Si no hay operador, delega a relacional.
+        Si hay operador, verifica que ambos operandos sean del mismo tipo
+        antes de comparar — RISCO no permite comparar tipos distintos.
+
+        Ejemplo en RISCO:
+            5 == 5        → True
+            "a" != "b"    → True
+            5 == "hola"   → Error de tipos
+
+        Args:
+            ctx: Contexto del nodo 'igualdad'.
+
+        Returns:
+            bool resultado de la comparación, o el valor de relacional
+            si no hay operador.
+
+        Raises:
+            Exception: Si los operandos son de tipos distintos.
+        """
         if ctx.getChildCount() == 1:
             return self.visit(ctx.relacional(0))
         izq = self.visit(ctx.relacional(0))
@@ -243,6 +440,30 @@ class VisitanteEvaluador(RISCOVisitor):
         if op == '!=': return izq != der
 
     def visitRelacional(self, ctx: RISCOParser.RelacionalContext):
+        """
+        Evalúa los operadores relacionales (>, <, >=, <=).
+
+        Si no hay operador, delega a suma.
+        Si hay operador, verifica que ambos operandos sean números
+        (Num o Decimal) — no permite comparar Bool ni otros tipos.
+        La comprobación explícita de bool es necesaria porque en Python
+        bool es subclase de int y pasaría la validación sin ella.
+
+        Ejemplo en RISCO:
+            5 > 3         → True
+            3.14 <= 3.14  → True
+            true > false  → Error de tipos
+
+        Args:
+            ctx: Contexto del nodo 'relacional'.
+
+        Returns:
+            bool resultado de la comparación, o el valor de suma
+            si no hay operador.
+
+        Raises:
+            Exception: Si algún operando no es número o es Bool.
+        """
         if ctx.getChildCount() == 1:
             return self.visit(ctx.suma(0))
         izq = self.visit(ctx.suma(0))
@@ -262,16 +483,28 @@ class VisitanteEvaluador(RISCOVisitor):
 
     def visitSuma(self, ctx: RISCOParser.ExpresionContext):
         """
-        Evalúa sumas y restas (menor precedencia).
+        Evalúa sumas y restas.
 
-        Si solo hay un hijo, delega directamente a comparacion.
+        Si solo hay un hijo, delega a comparacion.
         Si hay múltiples, evalúa de izquierda a derecha aplicando + o -.
+        El operador + valida que ambos operandos sean del mismo tipo.
+        El operador - valida que ambos sean números y no Bool.
+
+        Ejemplo en RISCO:
+            5 + 3           → 8
+            "hola" + " RC"  → "hola RC"
+            [1] + [2]       → [1, 2]
+            "a" - "b"       → Error de tipos
+            True + False    → Error de tipos
 
         Args:
-            ctx: Contexto del nodo 'expresion'.
+            ctx: Contexto del nodo 'suma'.
 
         Returns:
-            Resultado numérico o string (en caso de concatenación con +).
+            Resultado de la suma/resta entre los operandos.
+
+        Raises:
+            Exception: Si los tipos son incompatibles con el operador.
         """
 
         if ctx.getChildCount() == 1:
@@ -284,6 +517,10 @@ class VisitanteEvaluador(RISCOVisitor):
             
             # Operaciones suma y resta con validaciones de tipo
             if operador == '+':
+                if isinstance(resultado, bool):
+                    raise Exception(
+                        f"Error de tipos: '+' no está definido para Bool"
+                    )
                 if type(resultado) != type(valor):
                     raise Exception(
                         f"Error de tipos: '+' no puede operar "

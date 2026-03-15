@@ -44,6 +44,16 @@ class RISCOVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by RISCOParser#if_stmt.
+    def visitIf_stmt(self, ctx:RISCOParser.If_stmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by RISCOParser#while_stmt.
+    def visitWhile_stmt(self, ctx:RISCOParser.While_stmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by RISCOParser#expresion.
     def visitExpresion(self, ctx:RISCOParser.ExpresionContext):
         return self.visitChildren(ctx)

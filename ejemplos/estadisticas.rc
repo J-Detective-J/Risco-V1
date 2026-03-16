@@ -1,0 +1,41 @@
+// estadisticas.rc
+// Calcula estadísticas básicas sobre una lista de datos
+
+val datos = [4, 7, 2, 9, 1, 5, 8, 3, 6]
+
+// Suma total
+var suma = 0
+for n in datos:
+    suma = suma + n
+end
+print("Suma:")
+print(suma)
+
+// Conteo
+var cantidad = 0
+for n in datos:
+    cantidad = cantidad + 1
+end
+print("Cantidad:")
+print(cantidad)
+
+// Promedio aproximado (entero)
+var promedio = suma / cantidad
+print("Promedio:")
+print(promedio)
+
+// Cuántos están sobre el promedio
+var sobre_promedio = 0
+for n in datos:
+    if n > promedio:
+        sobre_promedio = sobre_promedio + 1
+    end
+end
+print("Sobre el promedio:")
+print(sobre_promedio)
+
+// Verificar pertenencia
+print("¿Está el 7?")
+print(7 in datos)
+print("¿Está el 10?")
+print(10 in datos)

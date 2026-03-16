@@ -1,0 +1,14 @@
+// Tablas de multiplicar
+
+print("Tablas de multiplicar del 1 al 10")
+var n = 1
+var m = 1
+while n <= 10:
+    m=1
+    print("------------")
+    while m <= 10:
+        print(n*m)
+        m=m+1
+    end
+    n=n+1
+end

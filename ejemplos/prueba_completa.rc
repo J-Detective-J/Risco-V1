@@ -1,0 +1,48 @@
+// Prueba completa de RISCO
+// Variables
+val nombre = "RISCO"
+var contador = 0
+
+print("Bienvenido a "+nombre)
+
+// Aritmética
+val x = 10
+val y = 3
+print(x + y)
+print(x * y)
+print(x ^ 2)
+
+// Condicional
+if x > y:
+    print("x es mayor")
+elif x == y:
+    print("son iguales")
+else:
+    print("y es mayor")
+end
+
+// While
+while contador < 3:
+    print(contador)
+    contador = contador + 1
+end
+
+// For con lista
+val nums = [1, 2, 3, 4, 5]
+var suma = 0
+for n in nums:
+    suma = suma + n
+end
+print(suma)
+
+// Booleanos y lógica
+val a = true
+val b = false
+print(a && b)
+print(a || b)
+print(!b)
+
+// In
+val frutas = ["pera", "uva", "mango"]
+print("pera" in frutas)
+print("kiwi" in frutas)

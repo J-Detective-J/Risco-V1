@@ -246,6 +246,10 @@ def test_suma_bool_numero_error():
     resultado = ejecutar('true + 1\n')
     assert any("Error de tipos" in r for r in resultado)
 
+def test_numero_mas_bool_error():
+    resultado = ejecutar('1 + true\n')
+    assert any("Error de tipos" in r for r in resultado)
+
 def test_resta_bool_error():
     resultado = ejecutar('true - 1\n')
     assert any("Error de tipos" in r for r in resultado)

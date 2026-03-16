@@ -517,7 +517,7 @@ class VisitanteEvaluador(RISCOVisitor):
             
             # Operaciones suma y resta con validaciones de tipo
             if operador == '+':
-                if isinstance(resultado, bool):
+                if isinstance(resultado, bool) or isinstance(valor,bool):
                     raise Exception(
                         f"Error de tipos: '+' no está definido para Bool"
                     )

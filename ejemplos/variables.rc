@@ -6,4 +6,4 @@ contador = contador + 1
 contador = contador + 1
 contador
 
-PI * 2  // usar constante
+print(PI * 2)  // usar constante

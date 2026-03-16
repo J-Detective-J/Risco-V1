@@ -12,4 +12,4 @@ end
 
 // Uso de 'in' como expresión booleana
 val frutas = ["manzana", "pera", "uva"]
-"pera" in frutas    // imprime: > true  
+print ("pera" in frutas)    // imprime: > true  

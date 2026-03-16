@@ -1,0 +1,26 @@
+// FizzBuzz del 1 al 20
+// - Múltiplo de 3 y 5: FizzBuzz
+// - Múltiplo de 3: Fizz
+// - Múltiplo de 5: Buzz
+// - Otro: el número
+
+var i = 1
+var es_tres = false
+var es_cinco = false
+
+while i <= 20:
+    es_tres = i % 3 == 0
+    es_cinco = i % 5 == 0
+
+    if es_tres && es_cinco:
+        print("FizzBuzz")
+    elif es_tres:
+        print("Fizz")
+    elif es_cinco:
+        print("Buzz")
+    else:
+        print(i)
+    end
+
+    i = i + 1
+end

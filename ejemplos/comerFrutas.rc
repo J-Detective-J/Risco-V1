@@ -1,0 +1,15 @@
+/- Se tiene una dispensadora de frutas donde no sabemos que fruta saldrá
+   a María no le gusta la naranja, por lo que si le sale una la regalará
+   en caso de sacar otra fruta la comerá
+   Se ve en pantalla un mensaje con "COMO MANZANA" o "REGALO NARANJA"
+-/
+
+val dispensadora = ["FRESAS","NARANJA","MANZANA","PERA","UVAS","NARANJA","MANZANA","SANDIA"]
+
+for d in dispensadora:
+    if d == "NARANJA":
+        print("REGALO "+d)
+    else:
+        print("COMO "+d)
+    end
+end

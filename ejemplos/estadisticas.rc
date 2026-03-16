@@ -1,4 +1,3 @@
-// estadisticas.rc
 // Calcula estadísticas básicas sobre una lista de datos
 
 val datos = [4, 7, 2, 9, 1, 5, 8, 3, 6]

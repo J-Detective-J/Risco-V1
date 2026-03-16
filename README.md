@@ -1,21 +1,35 @@
 # RISCO
 
-RISCO es un Lenguaje de Dominio Específico (DSL) para realizar operaciones matemáticas y de control de flujo, implementado con ANTLR4 y Python. Sigue un estilo funcional con variables inmutables (`val`) y mutables (`var`), y respeta la precedencia de operadores.
+RISCO es un Lenguaje de Dominio Específico (DSL) orientado a operaciones de deep learning y machine learning, implementado con ANTLR4 y Python. Sigue el paradigma funcional con variables inmutables (`val`) y mutables (`var`), tipado dinámico y fuerte sin conversiones implícitas, y respeta la precedencia de operadores.
 
 ## Características
 
-- Variables inmutables (`val`) y mutables (`var`)
-- Null y valores nulos
-- Listas y operaciones
-- Booleanos y operaciones lógicas
-- Strings y concatenación
+- Variables inmutables (`val`) y mutables (`var`) — ninguna puede redeclararse
+- Tipado fuerte: sin conversiones implícitas entre tipos
+- Validación de tipos en todos los operadores (`+` `-` `*` `/` `%` `^` `!` `&&` `||` `==` `!=` `>` `<` `>=` `<=`)
+- Números enteros (`Num`), decimales (`Decimal`), texto (`Text`), booleanos (`Bool`), listas y `null`
+- Concatenación de strings con `+`
+- Operadores relacionales y lógicos
+- Condicionales `if / elif / else`
 - Bucle `for` con iteración sobre listas y strings
+- Bucle `while`
 - Operador `in` para verificar pertenencia
-- Suite de pruebas automatizadas con pytest
+- `print()` acepta cualquier tipo de dato
+- Modo interactivo (REPL) con auto-print de expresiones
+- Solo acepta archivos con extensión `.rc`
+- Suite de 88 pruebas automatizadas con pytest
+
+## Limitaciones actuales (primera entrega)
+
+- No hay input de usuario en modo archivo
+- No hay indexación de listas (`lista[i]` no implementado aún)
+- No hay casteo explícito (`Num()`, `Text()`, etc. — pendiente)
+- No hay funciones definidas por el usuario (pendiente)
+- El modo interactivo solo soporta expresiones de una línea
 
 ## Requisitos previos
 
-Con instrucciones para instalar en Linux (Debian):
+Con instrucciones para instalar en Linux (Debian/Ubuntu):
 
 - Python 3.8 o superior
 ```bash
@@ -31,8 +45,8 @@ pip3 install --user antlr4-tools
 Si no funciona:
 ```bash
 pipx install antlr4-tools
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 - Java Runtime (para ANTLR)
@@ -71,53 +85,92 @@ chmod +x generar.sh
 ```bash
 python src/risco.py
 ```
->  El modo interactivo solo soporta expresiones de una línea. Para bloques como `for`, usar archivos `.rc`.
+El modo interactivo imprime automáticamente el resultado de cualquier expresión suelta con el prefijo `>`. Solo soporta expresiones de una línea — para bloques como `for`, `if` o `while` usar archivos `.rc`.
 
 ### Ejecutar un archivo
 Crea un archivo con extensión `.rc` y ejecútalo:
 ```bash
 python src/risco.py ejemplos/nombre_del_archivo.rc
 ```
+RISCO rechaza archivos con cualquier otra extensión.
 
 ## Sintaxis
 
 ### Variables
 ```
-val PI = 3.14159    // inmutable, no se puede reasignar
-var contador = 0    // mutable
+val PI = 3.14159    // inmutable, no se puede reasignar ni redeclarar
+var contador = 0    // mutable, se puede reasignar pero no redeclarar
 contador = contador + 1
 ```
 
-### Operadores
-| Operador | Descripción |
-|----------|-------------|
-| `+` `-` `*` `/` `%` | Aritméticos |
-| `^` | Potencia |
-| `!` | Not lógico |
-| `in` | Pertenencia (devuelve booleano) |
+### Operadores aritméticos
+| Operador | Descripción | Tipos válidos |
+|----------|-------------|---------------|
+| `+` | Suma / concatenación | Num+Num, Decimal+Decimal, Text+Text, Lista+Lista |
+| `-` | Resta | Solo números |
+| `*` | Multiplicación | Solo números |
+| `/` | División | Solo números |
+| `%` | Módulo | Solo números |
+| `^` | Potencia (asociativo derecha) | Solo números |
 
-### Listas
+### Operadores relacionales y lógicos
+| Operador | Descripción | Tipos válidos |
+|----------|-------------|---------------|
+| `>` `<` `>=` `<=` | Comparación | Solo números |
+| `==` `!=` | Igualdad | Mismo tipo |
+| `&&` | AND lógico | Solo Bool |
+| `\|\|` | OR lógico | Solo Bool |
+| `!` | NOT lógico | Solo Bool |
+
+### Condicionales
 ```
-val numeros = [1, 2, 3, 4, 5]
-val frutas = ["manzana", "pera", "uva"]
+if x > 0:
+    print("positivo")
+elif x == 0:
+    print("cero")
+else:
+    print("negativo")
+end
 ```
 
 ### Bucle for
 Itera sobre listas o strings:
 ```
+val numeros = [1, 2, 3, 4, 5]
 for n in numeros:
-    n * 2
+    print(n)
 end
 
 for letra in "hola":
-    letra
+    print(letra)
 end
+```
+
+### Bucle while
+```
+var i = 0
+while i < 5:
+    print(i)
+    i = i + 1
+end
+```
+
+### Print
+Acepta cualquier tipo de dato sin conversión implícita:
+```
+print("hola")
+print(42)
+print(3.14)
+print(true)
+print([1, 2, 3])
+print(null)
 ```
 
 ### Operador in
 ```
-"pera" in frutas    // > True
-2 in numeros        // > True
+val frutas = ["manzana", "pera", "uva"]
+print("pera" in frutas)    // True
+print("kiwi" in frutas)    // False
 ```
 
 ### Comentarios
@@ -138,11 +191,16 @@ Los archivos de ejemplo están en la carpeta `ejemplos/`:
 | `variables.rc` | Variables mutables e inmutables |
 | `precedencia.rc` | Precedencia y asociatividad de operadores |
 | `area_circulo.rc` | Cálculo del área de un círculo |
-| `ciclofor_in.rc` | Bucle `for` e operador `in` |
+| `ciclofor_in.rc` | Bucle `for` y operador `in` |
+| `estadisticas.rc` | Estadísticas básicas sobre una lista de datos |
+| `tablas.rc` | Tablas de multiplicar con while anidado |
+| `fizzbuzz.rc` | FizzBuzz del 1 al 20 con while, if/elif/else y operadores lógicos |
+| `comerFrutas.rc` | Dispensadora de frutas con for e if/else |
+| `prueba_completa.rc` | Demo de todas las características implementadas |
 
 ## Pruebas
 
-El proyecto incluye una suite de pruebas automatizadas con pytest:
+El proyecto incluye 88 pruebas automatizadas con pytest:
 
 ```bash
 pytest tests/ -v
@@ -150,27 +208,29 @@ pytest tests/ -v
 
 Para correr una prueba específica:
 ```bash
-pytest tests/test_risco.py::test_for_lista -v
+pytest tests/test_risco.py::test_suma -v
 ```
 
 Cuando agregues una feature nueva:
-1. Agrega sus tests en `tests/test_risco.py`
+1. Modifica `gramaticas/RISCO.g4` si cambia la gramática
 2. Regenera el parser si cambiaste el `.g4`: `./generar.sh`
-3. Verifica que todo sigue en orden: `pytest tests/ -v`
+3. Agrega la lógica en `src/visitante_evaluador.py`
+4. Agrega sus pruebas en `tests/test_risco.py`
+5. Verifica que todo sigue en orden: `pytest tests/ -v`
 
 ## Estructura del proyecto
 
 ```
 Risco-V1/
   gramaticas/
-    RISCO.g4              # Gramática del lenguaje
-    RISCOLexer.py         # Generado por ANTLR
-    RISCOParser.py        # Generado por ANTLR
-    RISCOVisitor.py       # Generado por ANTLR
+    RISCO.g4              # Gramática del lenguaje (editado por el equipo)
+    RISCOLexer.py         # Generado por ANTLR — no editar
+    RISCOParser.py        # Generado por ANTLR — no editar
+    RISCOVisitor.py       # Generado por ANTLR — no editar
   src/
-    risco.py              # Intérprete principal
-    visitante_evaluador.py # Lógica de evaluación
-    manejador_errores.py  # Manejo de errores de sintaxis
+    risco.py              # Punto de entrada del intérprete
+    visitante_evaluador.py # Lógica de evaluación (editado por el equipo)
+    manejador_errores.py  # Manejo de errores sintácticos
   ejemplos/
     *.rc                  # Archivos de ejemplo
   tests/
@@ -178,3 +238,16 @@ Risco-V1/
   generar.sh              # Script para regenerar el parser
   requisitos.txt          # Dependencias Python
 ```
+
+## Decisiones de diseño
+
+| Característica | Decisión | Justificación |
+|---|---|---|
+| Tipado | Dinámico y fuerte | Flexible pero sin conversiones silenciosas |
+| Inmutabilidad | `val` — no reasignable ni redeclarable | Estilo funcional |
+| `var` | Reasignable pero no redeclarable | Consistencia de scope |
+| División | Devuelve el resultado de Python (`/`) | Sin símbolo de división entera — `//` es comentario |
+| Extensión | `.rc` obligatoria | Identifica archivos del intérprete |
+| Bool en aritmética | No permitido | `bool` es subclase de `int` en Python — validación explícita necesaria |
+| Palabras reservadas | Declaradas antes de `IDENTIFICADOR` en la gramática | El lexer hace match con la primera regla que encaje |
+| Operadores de dos caracteres | Declarados antes de `>` y `<` | Evita que `>=` se tokenice como `>` seguido de `=` |

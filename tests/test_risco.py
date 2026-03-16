@@ -370,3 +370,21 @@ def test_while_con_acumulador():
 def test_while_modifica_variable_externa():
     codigo = 'var x = 10\nwhile x > 0:\n    x = x - 3\nend\nprint(x)\n'
     assert ejecutar(codigo) == ["-2"]
+
+# Extensión Inválida
+
+def test_extension_invalida():
+    import tempfile, os
+    with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as f:
+        f.write(b'val x = 5\n')
+        nombre = f.name
+    interprete = RISCO()
+    # Capturar que lanza error o imprime advertencia
+    resultado = []
+    try:
+        interprete.ejecutar_archivo(nombre)
+    except SystemExit:
+        resultado = ["extension invalida"]
+    finally:
+        os.unlink(nombre)
+    assert len(resultado) > 0

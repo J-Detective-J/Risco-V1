@@ -61,6 +61,9 @@ class RISCO:
         Raises:
             SystemExit: Si el archivo no existe o ocurre un error de lectura.
         """
+        if not ruta_archivo.endswith('.rc'):
+            print(f"Error: '{ruta_archivo}' no tiene extensión .rc")
+            sys.exit(1)
         try:
             with open(ruta_archivo, 'r', encoding='utf-8') as f:
                 codigo = f.read()

@@ -40,6 +40,18 @@ public class RISCOBaseListener implements RISCOListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPrint_stmt(RISCOParser.Print_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrint_stmt(RISCOParser.Print_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDeclaracion_variable(RISCOParser.Declaracion_variableContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -76,6 +88,18 @@ public class RISCOBaseListener implements RISCOListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFor_stmt(RISCOParser.For_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFor_stmt(RISCOParser.For_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpresion(RISCOParser.ExpresionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -83,6 +107,18 @@ public class RISCOBaseListener implements RISCOListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpresion(RISCOParser.ExpresionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterComparacion(RISCOParser.ComparacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComparacion(RISCOParser.ComparacionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

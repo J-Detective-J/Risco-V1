@@ -27,6 +27,16 @@ public interface RISCOListener extends ParseTreeListener {
 	 */
 	void exitSentencia(RISCOParser.SentenciaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link RISCOParser#print_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrint_stmt(RISCOParser.Print_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#print_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrint_stmt(RISCOParser.Print_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link RISCOParser#declaracion_variable}.
 	 * @param ctx the parse tree
 	 */
@@ -57,6 +67,16 @@ public interface RISCOListener extends ParseTreeListener {
 	 */
 	void exitExpresion_stmt(RISCOParser.Expresion_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link RISCOParser#for_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterFor_stmt(RISCOParser.For_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#for_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitFor_stmt(RISCOParser.For_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link RISCOParser#expresion}.
 	 * @param ctx the parse tree
 	 */
@@ -66,6 +86,16 @@ public interface RISCOListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpresion(RISCOParser.ExpresionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#comparacion}.
+	 * @param ctx the parse tree
+	 */
+	void enterComparacion(RISCOParser.ComparacionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#comparacion}.
+	 * @param ctx the parse tree
+	 */
+	void exitComparacion(RISCOParser.ComparacionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link RISCOParser#termino}.
 	 * @param ctx the parse tree

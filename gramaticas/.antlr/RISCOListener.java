@@ -77,6 +77,26 @@ public interface RISCOListener extends ParseTreeListener {
 	 */
 	void exitFor_stmt(RISCOParser.For_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link RISCOParser#if_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf_stmt(RISCOParser.If_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#if_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf_stmt(RISCOParser.If_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#while_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhile_stmt(RISCOParser.While_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#while_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhile_stmt(RISCOParser.While_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link RISCOParser#expresion}.
 	 * @param ctx the parse tree
 	 */
@@ -86,6 +106,56 @@ public interface RISCOListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpresion(RISCOParser.ExpresionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#or_logico}.
+	 * @param ctx the parse tree
+	 */
+	void enterOr_logico(RISCOParser.Or_logicoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#or_logico}.
+	 * @param ctx the parse tree
+	 */
+	void exitOr_logico(RISCOParser.Or_logicoContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#and_logico}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnd_logico(RISCOParser.And_logicoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#and_logico}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnd_logico(RISCOParser.And_logicoContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#igualdad}.
+	 * @param ctx the parse tree
+	 */
+	void enterIgualdad(RISCOParser.IgualdadContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#igualdad}.
+	 * @param ctx the parse tree
+	 */
+	void exitIgualdad(RISCOParser.IgualdadContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#relacional}.
+	 * @param ctx the parse tree
+	 */
+	void enterRelacional(RISCOParser.RelacionalContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#relacional}.
+	 * @param ctx the parse tree
+	 */
+	void exitRelacional(RISCOParser.RelacionalContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RISCOParser#suma}.
+	 * @param ctx the parse tree
+	 */
+	void enterSuma(RISCOParser.SumaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RISCOParser#suma}.
+	 * @param ctx the parse tree
+	 */
+	void exitSuma(RISCOParser.SumaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link RISCOParser#comparacion}.
 	 * @param ctx the parse tree
@@ -106,16 +176,6 @@ public interface RISCOListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTermino(RISCOParser.TerminoContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link RISCOParser#factor}.
-	 * @param ctx the parse tree
-	 */
-	void enterFactor(RISCOParser.FactorContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link RISCOParser#factor}.
-	 * @param ctx the parse tree
-	 */
-	void exitFactor(RISCOParser.FactorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link RISCOParser#potencia}.
 	 * @param ctx the parse tree

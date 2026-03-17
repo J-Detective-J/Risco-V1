@@ -1,0 +1,17 @@
+// Factorial de los números del 1 al 5
+
+var n=10
+var m=n
+var fact=n
+while n>0:
+    fact=n
+    m=n-1
+    print(n)
+    print("=")
+    while m>0:
+        fact=fact*m
+        m=m-1
+    end
+    print(fact)
+    n=n-1
+end
